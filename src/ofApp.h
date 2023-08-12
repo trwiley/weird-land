@@ -28,7 +28,16 @@ class ofApp : public ofBaseApp{
     ofImage distortion;
     ofxAssimpModelLoader diamond1;
     ofxAssimpModelLoader diamond2;
+    ofxAssimpModelLoader rock1;
+    ofxAssimpModelLoader rock2;
+    ofxAssimpModelLoader nubby;
     
     ofEasyCam cam;
+    ofLight light;
+    
+    ofTexture tex1;
+    ofTexture tex2;
+    ofTexture tex3;
+    
 		
 };

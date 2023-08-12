@@ -3,13 +3,29 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
     webcam.setup(1024, 768);
+    ofDisableAlphaBlending();
+   //ofEnableDepthTest();
+    //light.enable();
+    //light.setPosition(ofVec3f(100,100,200));
     diamond1.loadModel("diamond_stone.obj");
-    diamond2.loadModel("diamond_stone.obj");
     
+    diamond2.loadModel("diamond_stone.obj");
+    rock1.loadModel("rock_1.obj");
+    rock2.loadModel("rock_2.obj");
+    nubby.loadModel("wavy_dude.obj");
+    
+
     diamond1.setPosition(-1500, -100, -1000);
     diamond2.setPosition(1500, -100, -1000);
+    rock1.setPosition(-600, 0, -250);
+    rock2.setPosition(600, 0, -250);
+    nubby.setPosition(0, 100, 250);
     cam.setDistance(1500);
     
+ 
+ 
+    ofDisableArbTex();
+    ofLoadImage(tex1, "178.jpg");
     
 }
 
@@ -17,6 +33,7 @@ void ofApp::setup(){
 void ofApp::update(){
     webcam.update();
     distortion.setFromPixels(webcam.getPixels());
+    
 
 }
 
@@ -48,10 +65,19 @@ void ofApp::draw(){
     distortion.update();
     distortion.draw(0, 0);
     
+    
     cam.begin();
+    
+    tex1.bind();
     diamond1.drawFaces();
     diamond2.drawFaces();
+    tex1.unbind();
+    
+//    rock1.drawFaces();
+//    rock2.drawFaces();
+//    nubby.drawFaces();
     cam.end();
+   
 }
 
 //--------------------------------------------------------------
