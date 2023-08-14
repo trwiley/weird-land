@@ -2,11 +2,10 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    webcam.setup(1024, 768);
-    ofDisableAlphaBlending();
-   //ofEnableDepthTest();
-    //light.enable();
-    //light.setPosition(ofVec3f(100,100,200));
+    webcam.setup(ofGetWindowWidth(), ofGetWindowHeight());
+    //ofDisableAlphaBlending();
+  
+ 
     diamond1.loadModel("diamond_stone.obj");
     
     diamond2.loadModel("diamond_stone.obj");
@@ -19,13 +18,17 @@ void ofApp::setup(){
     diamond2.setPosition(1500, -100, -1000);
     rock1.setPosition(-600, 0, -250);
     rock2.setPosition(600, 0, -250);
-    nubby.setPosition(0, 100, 250);
+    nubby.setRotation(0, 180, 0, 0, 1);
+    nubby.setPosition(0, -300, 250);
+   
     cam.setDistance(1500);
     
  
  
     ofDisableArbTex();
     ofLoadImage(tex1, "178.jpg");
+    ofLoadImage(tex2, "139.jpg");
+    ofLoadImage(tex3, "wavy_dude_material.png");
     
 }
 
@@ -62,21 +65,62 @@ void ofApp::draw(){
 
         }
     }
+
+
     distortion.update();
     distortion.draw(0, 0);
-    
-    
+
+
     cam.begin();
+    light.enable();
+    light.setPointLight();
+    light.setPosition(ofVec3f(200,300,600));
+    light.setSpecularColor((ofColor(255)));
+    light.setDiffuseColor((ofColor(255, 121, 174)));
     
+    light2.enable();
+    light2.setPointLight();
+    light2.setPosition(-200, 300, 600);
+    light2.setSpecularColor((ofColor(255)));
+    
+    backlight1.enable();
+    backlight1.setPointLight();
+    backlight1.setPosition(800, 300, -600);
+    backlight1.setDiffuseColor((ofColor(255, 121, 174)));
+    backlight1.setSpecularColor((ofColor(255)));
+    
+    backlight2.enable();
+    backlight2.setPointLight();
+    backlight2.setPosition(-800, 300, -600);
+    backlight2.setDiffuseColor((ofColor(255, 121, 174)));
+    backlight2.setSpecularColor((ofColor(255)));
+    
+    bottom.enable();
+    bottom.setPointLight();
+    bottom.setPosition(0, 0, 250);
+    bottom.setDiffuseColor((ofColor(255)));
+    bottom.setSpecularColor((ofColor(255)));
+    
+    ofEnableDepthTest();
     tex1.bind();
     diamond1.drawFaces();
     diamond2.drawFaces();
     tex1.unbind();
-    
-//    rock1.drawFaces();
-//    rock2.drawFaces();
-//    nubby.drawFaces();
+    tex2.bind();
+    rock1.drawFaces();
+    rock2.drawFaces();
+    tex2.unbind();
+    tex3.bind();
+    nubby.drawFaces();
+    tex3.unbind();
+    light.disable();
+    light2.disable();
+    ofDisableDepthTest();
+    ofDisableLighting();
     cam.end();
+
+    
+
    
 }
 

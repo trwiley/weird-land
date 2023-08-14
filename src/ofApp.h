@@ -34,6 +34,10 @@ class ofApp : public ofBaseApp{
     
     ofEasyCam cam;
     ofLight light;
+    ofLight light2;
+    ofLight backlight1;
+    ofLight backlight2;
+    ofLight bottom;
     
     ofTexture tex1;
     ofTexture tex2;
