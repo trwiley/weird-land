@@ -1,52 +1,48 @@
 #include "ofApp.h"
 
-//--------------------------------------------------------------
-void ofApp::setup(){
-    webcam.setup(ofGetWindowWidth(), ofGetWindowHeight());
-    //ofDisableAlphaBlending();
-  
- 
+void ofApp::loadAllModels(){
     diamond1.loadModel("diamond_stone.obj");
-    
     diamond2.loadModel("diamond_stone.obj");
     rock1.loadModel("rock_1.obj");
     rock2.loadModel("rock_2.obj");
     nubby.loadModel("wavy_dude.obj");
-    
+    world.setRadius(1100);
+}
 
-    diamond1.setPosition(-1500, -100, -1000);
-    diamond2.setPosition(1500, -100, -1000);
+void ofApp::setInitialPositions(){
+    diamond1.setPosition(-1200, -100, -1500);
+    diamond2.setPosition(1500, -100, -1500);
     rock1.setPosition(-600, 0, -250);
     rock2.setPosition(600, 0, -250);
     nubby.setRotation(0, 180, 0, 0, 1);
-    nubby.setPosition(0, -300, 250);
-   
-    cam.setDistance(1500);
+    nubby.setPosition(0, 0, -150);
+    world.setPosition(0, 0, -1500);
+}
+
+void ofApp::getInitialPositions(){
+    d1_sp = diamond1.getPosition();
+    d2_sp = diamond2.getPosition();
     
- 
- 
+    r1_sp = rock1.getPosition();
+    r2_sp = rock2.getPosition();
+    
+    nub_sp = nubby.getPosition();
+}
+
+void ofApp::loadTextures(){
     ofDisableArbTex();
     ofLoadImage(tex1, "178.jpg");
     ofLoadImage(tex2, "139.jpg");
     ofLoadImage(tex3, "wavy_dude_material.png");
-    
 }
 
-//--------------------------------------------------------------
-void ofApp::update(){
-    webcam.update();
-    distortion.setFromPixels(webcam.getPixels());
-    
-
-}
-
-//--------------------------------------------------------------
-void ofApp::draw(){
-    
+void ofApp::recolorWebcamImage(){
+    int sumBrightness = 0;
     for(int i = 0; i < webcam.getWidth(); i++){
         for(int j = 0; j < webcam.getHeight(); j++){
             ofColor oldColor = webcam.getPixels().getColor(i, j);
             int brightness = oldColor.getBrightness();
+            sumBrightness = sumBrightness += brightness;
             ofColor newColor;
             
             if(brightness <= 63) {
@@ -62,16 +58,36 @@ void ofApp::draw(){
                 newColor.set(255, 249, 130);
             }
             distortion.setColor(i, j, newColor);
-
         }
     }
+    avgBrightness = sumBrightness / (webcam.getWidth() * webcam.getHeight());
+    
+}
+void ofApp::recolorWebcamImageBG(){
+    for(int i = 0; i < webcam.getWidth(); i++){
+        for(int j = 0; j < webcam.getHeight(); j++){
+            ofColor oldColor = webcam.getPixels().getColor(i, j);
+            int brightness = oldColor.getBrightness();
+            ofColor newColor;
+            
+            if(brightness <= 63) {
+                newColor.set(0);
+            }
+            else if(brightness > 64 && brightness <= 127){
+                newColor.set(0);
+            }
+            else if(brightness > 128 && brightness <= 192){
+                newColor.set(255);
+            }
+            else {
+                newColor.set(255);
+            }
+            background.setColor(i, j, newColor);
+        }
+    }
+}
 
-
-    distortion.update();
-    distortion.draw(0, 0);
-
-
-    cam.begin();
+void ofApp::setUpLights(){
     light.enable();
     light.setPointLight();
     light.setPosition(ofVec3f(200,300,600));
@@ -100,6 +116,60 @@ void ofApp::draw(){
     bottom.setPosition(0, 0, 250);
     bottom.setDiffuseColor((ofColor(255)));
     bottom.setSpecularColor((ofColor(255)));
+}
+//--------------------------------------------------------------
+void ofApp::setup(){
+    webcam.setup(1024, 768);
+    ofSetBackgroundColor(0);
+    
+    loadAllModels();
+    setInitialPositions();
+    getInitialPositions();
+    
+    cam.setDistance(2000);
+    
+    
+    loadTextures();
+}
+
+//--------------------------------------------------------------
+void ofApp::update(){
+    webcam.update();
+    distortion.setFromPixels(webcam.getPixels());
+    background.setFromPixels(webcam.getPixels());
+}
+
+//--------------------------------------------------------------
+void ofApp::draw(){
+    recolorWebcamImage();
+    recolorWebcamImageBG();
+    distortion.update();
+    background.update();
+    
+    background.draw(ofGetWidth() / 2 - webcam.getWidth() / 2,ofGetHeight() / 2 - webcam.getHeight() / 2);
+    
+    world.rotate(1.5, 0.0, 1.0, 0.0);
+
+    cam.begin();
+    
+    setUpLights();
+    
+    
+    float sin_time = sin(ofGetElapsedTimef());
+    float cos_time = cos(ofGetElapsedTimef());
+    float noise = ofNoise(ofGetElapsedTimef());
+    int rotation = (ofGetElapsedTimeMillis() / 10) % 360;
+    diamond1.setPosition((d1_sp.x * sin_time) / noise, d1_sp.y * 20 * noise, d1_sp.z);
+    diamond2.setPosition(d2_sp.x * sin_time, (d2_sp.y / noise) * -1, d2_sp.z);
+    
+    rock1.setRotation(0, rotation, 0, 1, 0);
+    rock1.setPosition(r1_sp.x, 200 * sin_time, r1_sp.z);
+    
+    rock2.setRotation(0, rotation, 0, 1, 0);
+    rock2.setPosition(r2_sp.x, 200 * sin_time, r1_sp.z);
+    
+    nubby.setPosition(4 * avgBrightness + -200, nub_sp.y, nub_sp.z + avgBrightness);
+    nubby.setRotation(0, rotation, 0, 1, 1);
     
     ofEnableDepthTest();
     tex1.bind();
@@ -113,15 +183,14 @@ void ofApp::draw(){
     tex3.bind();
     nubby.drawFaces();
     tex3.unbind();
-    light.disable();
-    light2.disable();
+    
+    distortion.getTexture().bind();
+    world.draw();
+    distortion.getTexture().unbind();
+    
     ofDisableDepthTest();
     ofDisableLighting();
     cam.end();
-
-    
-
-   
 }
 
 //--------------------------------------------------------------

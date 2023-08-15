@@ -24,13 +24,35 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo) override;
 		void gotMessage(ofMessage msg) override;
     
+    void loadAllModels();
+    void setInitialPositions();
+    void getInitialPositions();
+    void loadTextures();
+    void recolorWebcamImage();
+    void recolorWebcamImageBG();
+    void setUpLights();
+    
     ofVideoGrabber webcam;
     ofImage distortion;
+    ofImage background;
+    int avgBrightness;
+    
     ofxAssimpModelLoader diamond1;
+    ofVec3f d1_sp;
+    
     ofxAssimpModelLoader diamond2;
+    ofVec3f d2_sp;
+    
     ofxAssimpModelLoader rock1;
+    ofVec3f r1_sp;
+    
     ofxAssimpModelLoader rock2;
+    ofVec3f r2_sp;
+    
     ofxAssimpModelLoader nubby;
+    ofVec3f nub_sp;
+    
+    ofSpherePrimitive world;
     
     ofEasyCam cam;
     ofLight light;
@@ -42,6 +64,7 @@ class ofApp : public ofBaseApp{
     ofTexture tex1;
     ofTexture tex2;
     ofTexture tex3;
+    ofTexture worldTex;
     
 		
 };
